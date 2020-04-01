@@ -1,5 +1,6 @@
 {
 	"id": 0,
+	"type": "equations"
 	"text": "2+2=...",
 	"answer": "4" 
 }
