@@ -4,7 +4,7 @@ import json
 import random
 from datetime import datetime, date, time
 from jinja2 import Environment, FileSystemLoader
-from jinja2 import uuid
+import uuid
 
 task_folder = "./backend/tasks"
 task_count = 3
@@ -14,7 +14,7 @@ def init_ids():
     task_ids = []
     for dir in range(task_count):
         ids = []
-        for file in os.listdir(path.join(task_folder, str(dir)):
+        for file in os.listdir(path.join(task_folder, str(dir))) :
            with open(path.join(task_folder, str(dir), file)) as fd:
                ids.append(json.load(fd)['id'])
         task_ids.append(ids)
@@ -22,11 +22,15 @@ def init_ids():
                      
 def fill_correct_ids():
     for dir in range(task_count):
-        for file in os.listdir(path.join(task_folder, str(dir)):
-           with open(path.join(task_folder, str(dir), file), 'rw') as fd:
+        for file in os.listdir(path.join(task_folder, str(dir))) :
+            with open(path.join(task_folder, str(dir), file), 'r') as fd:
                data = json.load(fd)
-               data[id] = generate_id_for_task_number(dir)
-               json.dump(data, fd)          
+               id = generate_id_for_task_number(dir)
+               data['id'] = str(id)
+               file_name = F"task{id}.json"
+               with open(path.join(task_folder, str(dir), file_name), 'w') as f:
+                    json.dump(data, f)
+            os.remove(path.join(task_folder, str(dir), file))
 
 def generate_id_for_task_number(num):
     if num >= task_count:
@@ -40,6 +44,7 @@ def get_task_number_by_(id):
     return hash(id) % task_count
 
 def get_next_task_id_by_(next_task_num):
+    task_ids = init_ids()
     ids = task_ids[next_task_num]
     ind = random.randint(0, len(ids) - 1)
     return ids[ind]
@@ -67,7 +72,7 @@ def fetch_task (id):
     if id == 'super':
         return fetch_super_task()
         
-    num = get_task_number_by_id(id)
+    num = get_task_number_by_(id)
     file_name = F"{num}/task{id}.json"
     file_path = path.join(task_folder, file_name)
     print(file_path)
@@ -89,13 +94,13 @@ def fetch_super_task():
         with open(file_path) as fd:
             task = json.load(fd)
         return task
-    else
+    else:
         return "{}"
 
 # id - string
-def post_task (id):    
-    if id == '':
-        id = random.randint(0, task_count - 1)
+def post_task (id):
+    if id == 'undefined' or id == '' :
+        id = get_next_task_id_by_(0)
     task_json = fetch_task(id)
     if task_json:
         desc_json = {"id": task_json["id"], "text": task_json["text"], "type": task_json["type"]}

@@ -15,6 +15,7 @@ def get_index():
 def post_task_get():
     if not request.json or not 'id' in request.json:
         abort(400)
+    print(request.json)
     return api.post_task(request.json['id'])
 
 @app.route('/api/task/solve', methods=['POST'])
