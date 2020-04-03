@@ -15,14 +15,17 @@ def get_index():
 def post_task_get():
     if not request.json or not 'id' in request.json:
         abort(400)
-    print(request.json)
+    print("server >> post_task_get", request.json)
     return api.post_task(request.json['id'])
 
 @app.route('/api/task/solve', methods=['POST'])
 def post_task_solve():
     if not request.json or not 'id' in request.json:
         abort(400)
-    return api.post_solution(request.json['id'], request.json['solution'])
+    print("server >> post_task_solve", request.json)
+    meow = api.post_solution(request.json['id'], request.json['solution'])
+    print("server >> post_task_solve", meow)
+    return meow
 
 if __name__ == '__main__':
     app.run()

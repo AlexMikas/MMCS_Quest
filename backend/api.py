@@ -75,7 +75,7 @@ def fetch_task (id):
     num = get_task_number_by_(id)
     file_name = F"{num}/task{id}.json"
     file_path = path.join(task_folder, file_name)
-    print(file_path)
+    print("api >> fetch_task", file_path)
     if not path.exists(file_path):
         return None
     # get task
@@ -86,7 +86,7 @@ def fetch_task (id):
 def fetch_super_task():
     file_name = F"super/task.json"
     file_path = path.join(task_folder, file_name)
-    print(file_path)
+    print("api >> fetch_super_task", file_path)
     if not path.exists(file_path):
         return None
     # get task
@@ -101,27 +101,41 @@ def fetch_super_task():
 def post_task (id):
     if id == 'undefined' or id == '' :
         id = get_next_task_id_by_(0)
+        print("api >> post_task", id)
     task_json = fetch_task(id)
     if task_json:
         desc_json = {"id": task_json["id"], "text": task_json["text"], "type": task_json["type"]}
         return json.dumps(desc_json)
     return "{}"
 
+
+def ordered(obj):
+    if isinstance(obj, dict):
+        return sorted((k, ordered(v)) for k, v in obj.items())
+    if isinstance(obj, list):
+        return sorted(ordered(x) for x in obj)
+    else:
+        return obj
+
 # Может разделить? Проверка правильности ответа и отправка нового задания
 def post_solution (id, solution):
     task_json = fetch_task(id)
     if task_json:
-        if task_json["solution"] == solution:
+        print("api >> post_solution", solution)
+        print("api >> post_solution", task_json["solution"])
+        if ordered(task_json["solution"]) == ordered(solution):
             next_task_num = get_task_number_by_(id) + 1
             if next_task_num >= task_count:
                 return '{"success": true}'
             next_id = get_next_task_id_by_(next_task_num)
+            print("api >> post_solution", next_id, " ", next_task_num)
             return '{"success": true, next_task: '+ post_task(next_id) +'}'
         return '{"success": false}'
     return "{}"
 
 if __name__ == "__main__" :
     task_ids = init_ids()
+    #fill_correct_ids()
     print(task_count)
     print(post_task('0'))
     print(post_task(''))
