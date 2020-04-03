@@ -5,6 +5,7 @@ import random
 from datetime import datetime, date, time
 from jinja2 import Environment, FileSystemLoader
 import uuid
+from flask import jsonify
 
 task_folder = "./backend/tasks"
 task_count = 3
@@ -101,7 +102,7 @@ def fetch_super_task():
             task = json.load(fd)
         return task
     else:
-        return "{}"
+        return jsonify()
 
 # id - string
 def post_task (id):
@@ -110,10 +111,8 @@ def post_task (id):
         print("api >> post_task", id)
     task_json = fetch_task(id)
     if task_json:
-        desc_json = {"id": task_json["id"], "text": task_json["text"], "type": task_json["type"]}
-        return json.dumps(desc_json)
-    return "{}"
-
+        return json.dumps(id=task_json["id"], text=task_json["text"], type=task_json["type"])
+    return jsonify()
 
 def ordered(obj):
     if isinstance(obj, dict):
@@ -132,12 +131,12 @@ def post_solution (id, solution):
         if ordered(task_json["solution"]) == ordered(solution):
             next_task_num = get_task_number_by_(id) + 1
             if next_task_num >= task_count:
-                return '{"success": true}'
+                return jsonify(success="true")
             next_id = get_next_task_id_by_(next_task_num)
             print("api >> post_solution", next_id, " ", next_task_num)
-            return '{"success": true, next_task: '+ post_task(next_id) +'}'
-        return '{"success": false}'
-    return "{}"
+            return jsonify(success="true", next_task=post_task(next_id))
+        return jsonify(success="false")
+    return jsonify()
 
 if __name__ == "__main__" :
     task_ids = init_ids()
