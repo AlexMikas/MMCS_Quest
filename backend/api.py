@@ -130,13 +130,14 @@ def post_solution (id, solution):
     if task_json:
         print("api >> post_solution", solution)
         print("api >> post_solution", task_json["solution"])
-        res = {"success": False, "next_id": None}
+        res = {"success": False, "next_task": None}
         if task_json["type"] == "equations":
             for solu in task_json["solution"]:
                 if ordered(solu) == ordered(solution):
                     next_task_num = get_task_number_by_(id) + 1
                     res["success"] = True
                     if next_task_num >= task_count:
+                        res["next_task"] = {"id":"success"}
                         return json.dumps(res)
                     next_id = get_next_task_id_by_(next_task_num)
                     print("api >> post_solution", next_id, " ", next_task_num)
