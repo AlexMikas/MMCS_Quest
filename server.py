@@ -2,10 +2,12 @@ from jinja2 import Environment, FileSystemLoader
 from flask import Flask
 from flask import request
 import backend.api as api
-app = Flask(__name__)
+app = Flask(__name__, static_folder='frontend/static')
 
 @app.route('/')
 @app.route('/index.html')
+@app.route('/tasks.html')
+@app.route('/supertask.html')
 def get_index():
     return api.get_index()
 

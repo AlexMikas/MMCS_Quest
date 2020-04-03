@@ -2,16 +2,59 @@ import os
 from os import path
 import json
 import random
+from datetime import datetime, date, time
 from jinja2 import Environment, FileSystemLoader
+from jinja2 import uuid
 
 task_folder = "./backend/tasks"
-task_count = 0
+task_count = 3
+task_ids = []
 
-def init ():
-    task_count = 0
-    for file in os.listdir(task_folder):
-        task_count += 1
-    return task_count
+def init_ids():
+    task_ids = []
+    for dir in range(task_count):
+        ids = []
+        for file in os.listdir(path.join(task_folder, str(dir)):
+           with open(path.join(task_folder, str(dir), file)) as fd:
+               ids.append(json.load(fd)['id'])
+        task_ids.append(ids)
+    return task_ids
+                     
+def fill_correct_ids():
+    for dir in range(task_count):
+        for file in os.listdir(path.join(task_folder, str(dir)):
+           with open(path.join(task_folder, str(dir), file), 'rw') as fd:
+               data = json.load(fd)
+               data[id] = generate_id_for_task_number(dir)
+               json.dump(data, fd)          
+
+def generate_id_for_task_number(num):
+    if num >= task_count:
+        raise ValueError("num must be less then tasks count")
+    while True:
+        id = uuid.uuid4()
+        if (get_task_number_by_(id) == num):
+            return id
+        
+def get_task_number_by_(id):
+    return hash(id) % task_count
+
+def get_next_task_id_by_(next_task_num):
+    ids = task_ids[next_task_num]
+    ind = random.randint(0, len(ids) - 1)
+    return ids[ind]
+                     
+def its_time():
+    dateZ = date(5, 4, 2020)
+    timeFrom = time(15, 0, 0)
+    timeTo = time(23, 59, 59)
+                               
+    dtFrom = datatime(date, timeFrom)
+    dtTo = datatime(date, timeTo)
+                               
+    dt = datetime.now()
+    return dt > dtFrom and dt < dtTo
+        
 
 def get_index():
     env = Environment(loader=FileSystemLoader('frontend'))
@@ -21,17 +64,36 @@ def get_index():
 
 def fetch_task (id):
     # get file
-    file_name = "task"+str(id)+".json"
+    if id == 'super':
+        return fetch_super_task()
+        
+    num = get_task_number_by_id(id)
+    file_name = F"{num}/task{id}.json"
     file_path = path.join(task_folder, file_name)
     print(file_path)
     if not path.exists(file_path):
         return None
     # get task
-    task = json.load(open(file_path))
+    with open(file_path) as fd:
+        task = json.load(fd)
     return task
 
+def fetch_super_task():
+    file_name = F"super/task.json"
+    file_path = path.join(task_folder, file_name)
+    print(file_path)
+    if not path.exists(file_path):
+        return None
+    # get task
+    if its_time():
+        with open(file_path) as fd:
+            task = json.load(fd)
+        return task
+    else
+        return "{}"
+
 # id - string
-def post_task (id):
+def post_task (id):    
     if id == '':
         id = random.randint(0, task_count - 1)
     task_json = fetch_task(id)
@@ -45,13 +107,16 @@ def post_solution (id, solution):
     task_json = fetch_task(id)
     if task_json:
         if task_json["solution"] == solution:
-            next_id = (int(id) + 1) % task_count
+            next_task_num = get_task_number_by_(id) + 1
+            if next_task_num >= task_count:
+                return '{"success": true}'
+            next_id = get_next_task_id_by_(next_task_num)
             return '{"success": true, next_task: '+ post_task(next_id) +'}'
         return '{"success": false}'
     return "{}"
 
 if __name__ == "__main__" :
-    task_count = init()
+    task_ids = init_ids()
     print(task_count)
     print(post_task('0'))
     print(post_task(''))
