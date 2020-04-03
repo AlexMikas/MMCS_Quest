@@ -40,8 +40,14 @@ def generate_id_for_task_number(num):
         if (get_task_number_by_(id) == num):
             return id
         
+def hash_id(id, max):
+    res = 0
+    for ch in str(id):
+        res = res ^ ord(ch)
+    return res % max
+
 def get_task_number_by_(id):
-    return hash(id) % task_count
+    return hash_id(id, task_count)
 
 def get_next_task_id_by_(next_task_num):
     task_ids = init_ids()
