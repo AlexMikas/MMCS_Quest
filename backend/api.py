@@ -112,6 +112,9 @@ def post_task (id):
     task_json = fetch_task(id)
     if task_json:
         desc_json = {"id": task_json["id"], "text": task_json["text"], "type": task_json["type"]}
+        if task_json["type"] == "choice":
+            print(task_json["options"])
+            desc_json["options"] = task_json["options"]
         return json.dumps(desc_json)
     return "{}"
 
@@ -144,13 +147,14 @@ def post_solution (id, solution):
                     res["next_task"] = json.loads(post_task(next_id))
                     break
         else:
-            next_task_num = get_task_number_by_(id) + 1
-            res["success"] = True
-            if next_task_num >= task_count:
-                return json.dumps(res)
-            next_id = get_next_task_id_by_(next_task_num)
-            print("api >> post_solution", next_id, " ", next_task_num)
-            res["next_task"] = json.loads(post_task(next_id))
+            if solution == task_json["solution"]:
+                next_task_num = get_task_number_by_(id) + 1
+                res["success"] = True
+                if next_task_num >= task_count:
+                    return json.dumps(res)
+                next_id = get_next_task_id_by_(next_task_num)
+                print("api >> post_solution", next_id, " ", next_task_num)
+                res["next_task"] = json.loads(post_task(next_id))
         return json.dumps(res)
     return "{}"
 
