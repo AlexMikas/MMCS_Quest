@@ -56,7 +56,7 @@ def get_next_task_id_by_(next_task_num):
     return ids[ind]
                      
 def its_time():
-    dateZ = date(2020, 4, 3)
+    dateZ = date(2020, 4, 5)
     timeFrom = time(14, 0, 0)
     timeTo = time(23, 59, 59)
                                
